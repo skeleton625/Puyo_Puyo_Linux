@@ -72,7 +72,7 @@ void block::down_all(bool flag)
 void block::merge(block *b)
 {
 	color_block* new_blocks = new color_block(NULL, color);
-	color_block* d1 = b->get_group();
+	color_block* d1 = b->group;
 	color_block* d2 = group;
 	new_blocks->insert(d1->get_set());
 	new_blocks->insert(d2->get_set());
