@@ -9,7 +9,6 @@ block* array_2d::block_array[H][W];
 block* array_2d::next_block_array[W][W];
 set<color_block*> array_2d::explosion_s;
 
-// 뿌요뿌요 생성자
 array_2d::array_2d()
 {
 	for (int i = 1; i < H - 1; i++)
@@ -50,25 +49,19 @@ array_2d::array_2d()
 	}
 }
 
-// 뿌요뿌요 게임에서 새 블록 생성 여부 파악 함수
 bool array_2d::can_make(int types)
 {
 	switch (types)
 	{
 	case 0:
-		if (block_array[1][3] != NULL ||
-			block_array[2][3] != NULL ||
+		if (block_array[2][3] != NULL ||
 			block_array[2][2] != NULL)
 			return false;
 	case 1:
-		if (block_array[1][3] != NULL ||
-			block_array[2][3] != NULL ||
-			block_array[3][3] != NULL)
+		if (block_array[3][3] != NULL)
 			return false;
 	case 2:
-		if (block_array[1][3] != NULL ||
-			block_array[2][2] != NULL ||
-			block_array[2][3] != NULL ||
+		if (block_array[2][3] != NULL ||
 			block_array[2][4] != NULL ||
 			block_array[3][3] != NULL)
 			return false;
@@ -76,7 +69,6 @@ bool array_2d::can_make(int types)
 	return true;
 }
 
-// 블록 폭파 관련 함수들
 int array_2d::explosion(int& cnt)
 {
 	bool flag = false;
@@ -103,6 +95,7 @@ int array_2d::explosion(int& cnt)
 
 	return cnt;
 }
+
 void array_2d::insert_explosion(color_block* group)
 {
 	auto it = explosion_s.find(group);
@@ -119,25 +112,20 @@ void array_2d::remove_explosion()
 	explosion_s = set<color_block*>();
 }
 
-// 뿌요뿌요 게임 데이터 출력 함수들
 void array_2d::print()
 {
-	system("cls");
+	system("clear");	
 	cout << "Score : " << score << '\n';
 	for (int i = 0; i < H; i++)
 	{
 		for (int j = 0; j < W; j++)
 		{
 			if (block_array[i][j] == NULL)
-				cout << "  ";
+				cout << ". ";
 			else
 			{
 				int col = block_array[i][j]->get_color();
-				set_color(color[col]);
-				if (col == 0)
-					cout << "■";
-				else 
-					cout << "●";
+				set_color(col);
 			}
 				
 		}
@@ -150,15 +138,11 @@ void array_2d::print()
 		for (int j = 0; j < W; j++)
 		{
 			if (next_block_array[i][j] == NULL)
-				cout << "  ";
+				cout << ". ";
 			else
 			{
 				int col = next_block_array[i][j]->get_color();
-				set_color(color[col]);
-				if (col == 0)
-					cout << "■";
-				else
-					cout << "●";
+				set_color(col);
 			}
 		}
 		cout << '\n';
@@ -167,7 +151,9 @@ void array_2d::print()
 
 void array_2d::set_color(int fore)
 {
-	cout << "\033[1;" << fore << 'm';
+	cout << "\033[1;" << color[fore] << 'm';
+	cout << fore;
+	cout << "\033[1;97m" << ' ';
 }
 
 int array_2d::get_score() 
@@ -175,7 +161,6 @@ int array_2d::get_score()
 	return score; 
 }
 
-// 뿌요뿌요 게임 블록 추가, 삭제 함수들
 void array_2d::insert(vector<block*> v)
 {
 	for (block* b : v)
@@ -196,7 +181,6 @@ void array_2d::delete_block(int x, int y)
 	block_array[x][y] = NULL;
 }
 
-// 특정 위치의 블록을 가져오는 함수
 block* array_2d::get_block(int x, int y)
 {
 	if (x < 0 || y < 0 || x >= H || y >= W)
@@ -205,7 +189,6 @@ block* array_2d::get_block(int x, int y)
 		return block_array[x][y];;
 }
 
-// 모든 블록을 내리는 함수
 void array_2d::down_all()
 {
 	
