@@ -1,6 +1,7 @@
 #include <random>
 #include <stdio.h>
-#include <unistd.h>	// usleep : sleep function by linux
+#include <unistd.h>	// usleep : sleep function by linux, 1000000 = 1 second
+#include <termio.h>	// need for getch function
 #include <iostream>
 #include "array_2d.h"
 #include "fold_block.h"
@@ -13,13 +14,31 @@ int types = 0;
 int colors[5];
 bool down_flag = false;
 
-// 메르센 트위스터 난수 발생기 객체들
-random_device random;
-mt19937 engine(random());
+random_device randoms;
+mt19937 engine(randoms());
 uniform_int_distribution<int> BT(0, 2);
 uniform_int_distribution<int> BC(1, 4);
 
-// 블록 생성 함수
+int getch()
+{
+	int ch;
+	struct termios buf;
+	struct termios save;
+
+	tcgetattr(0, &save);
+	buf = save;
+	buf.c_lflag &= ~(ICANON|ECHO);
+
+	buf.c_cc[VMIN] = 1;
+	buf.c_cc[VTIME] = 0;
+
+	tcsetattr(0, TCSAFLUSH, &buf);
+	ch = getchar();
+	tcsetattr(0, TCSAFLUSH, &save);
+
+	return ch;
+}
+
 big_block generate_next_block()
 {
 	types = BT(engine);
@@ -39,14 +58,8 @@ big_block generate_next_block()
 	return NULL;
 }
 
-// 실제 메인 함수
 int main()
 {
-	cin.tie(false);
-	cout.tie(false);
-	ios::sync_with_stdio(false);
-
-	// 뿌요뿌요 메인 객체
 	array_2d* bbuyo_obj = new array_2d();
 
 	bbuyo_obj->set_next_block(generate_next_block());
@@ -56,7 +69,11 @@ int main()
 
 	while (true)
 	{
-		inp = getchar();
+		inp = getch();
+		
+		if(inp == 'p')
+			break;
+
 		switch (inp)
 		{
 			case 'a':
@@ -82,14 +99,14 @@ int main()
 		{
 			bbuyo_obj->down_all();
 			bbuyo_obj->print();
-			usleep(1200);
+			usleep(1200000);
 
 			int explo = 0;
 			while (bbuyo_obj->explosion(explo))
 			{
 				bbuyo_obj->down_all();
 				bbuyo_obj->print();
-				usleep(1200);
+				usleep(1200000);
 			}
 
 			if (!bbuyo_obj->can_make(types))
@@ -99,12 +116,10 @@ int main()
 			bbuyo_obj->set_next_block(generate_next_block());
 			down_flag = false;
 		}
-
-		else
-			bbuyo_obj->print();
+		bbuyo_obj->print();
 	}
 
 	cout << "GAME OVER!!" << '\n';
-	cout << "Your Final Score : " << bbuyo_obj->get_score();
+	cout << "Your Final Score : " << bbuyo_obj->get_score() << '\n';
 	return 0;
 }
